@@ -1,7 +1,7 @@
 display:
   cycle: false
   inverted: false
-  orientation: 270
+  orientation: 90
 ticker:
   currency: ethereum,bitcoin
   exchange: default
