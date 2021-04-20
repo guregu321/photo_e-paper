@@ -182,8 +182,8 @@ def updateDisplay(epd,config,pricestack,other):
 #   Check for token image, if there isn't one, get on off coingecko, resize it and pop it on a white background
     if os.path.isfile(tokenfilename):
         logging.info("Getting token Image from Image directory")
-        tokenimage = Image.open(tokenfilename).convert("RGBA")
-        
+        tokenimage = Image.open(tokenfilename)
+
         # Fix orientation: PIL will change orientation of vertical images
         exif = tokenimage._getexif()
         convert_image = {
@@ -207,6 +207,7 @@ def updateDisplay(epd,config,pricestack,other):
             upper = 176
             lower = 0
         tokenimage = tokenimage.crop((0,lower,264,upper))
+        tokenimage = tokenimage.convert("RGBA")
     else:
         logging.info("Getting token Image from Coingecko")
         tokenimageurl = "https://api.coingecko.com/api/v3/coins/"+whichcoin+"?tickers=false&market_data=false&community_data=false&developer_data=false&sparkline=false"
