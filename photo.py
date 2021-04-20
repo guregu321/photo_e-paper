@@ -185,7 +185,13 @@ def updateDisplay(epd,config,pricestack,other):
         tokenimage = Image.open(tokenfilename).convert("RGBA")
         height = round(tokenimage.height * 264 / tokenimage.width)
         tokenimage = tokenimage.resize((264, height), Image.LANCZOS)
-        tokenimage = tokenimage.crop((0,0,264,176))
+        if height > 176:
+            upper = (height+176)/2
+            lower = (height-176)/2
+        else:
+            upper = 176
+            lower = 0
+        tokenimage = tokenimage.crop((0,lower,264,upper176))
     else:
         logging.info("Getting token Image from Coingecko")
         tokenimageurl = "https://api.coingecko.com/api/v3/coins/"+whichcoin+"?tickers=false&market_data=false&community_data=false&developer_data=false&sparkline=false"
