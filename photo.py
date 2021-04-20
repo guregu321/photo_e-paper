@@ -183,6 +183,21 @@ def updateDisplay(epd,config,pricestack,other):
     if os.path.isfile(tokenfilename):
         logging.info("Getting token Image from Image directory")
         tokenimage = Image.open(tokenfilename).convert("RGBA")
+        
+        # Fix orientation: PIL will change orientation of vertical images
+        exif = tokenimage._getexif()
+        convert_image = {
+            1: lambda img: img,
+            2: lambda img: img.transpose(Image.FLIP_LEFT_RIGHT),
+            3: lambda img: img.transpose(Image.ROTATE_180),
+            4: lambda img: img.transpose(Image.FLIP_TOP_BOTTOM),
+            5: lambda img: img.transpose(Image.FLIP_LEFT_RIGHT).transpose(Pillow.ROTATE_90),
+            6: lambda img: img.transpose(Image.ROTATE_270),
+            7: lambda img: img.transpose(Image.FLIP_LEFT_RIGHT).transpose(Pillow.ROTATE_270),
+            8: lambda img: img.transpose(Image.ROTATE_90),}
+        orientation = exif.get(0x112, 1)
+        tokenimage = convert_image[orientation](tokenimage)
+
         height = round(tokenimage.height * 264 / tokenimage.width)
         tokenimage = tokenimage.resize((264, height), Image.LANCZOS)
         if height > 176:
