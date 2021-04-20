@@ -191,7 +191,7 @@ def updateDisplay(epd,config,pricestack,other):
         else:
             upper = 176
             lower = 0
-        tokenimage = tokenimage.crop((0,lower,264,upper176))
+        tokenimage = tokenimage.crop((0,lower,264,upper))
     else:
         logging.info("Getting token Image from Coingecko")
         tokenimageurl = "https://api.coingecko.com/api/v3/coins/"+whichcoin+"?tickers=false&market_data=false&community_data=false&developer_data=false&sparkline=false"
