@@ -183,8 +183,8 @@ def updateDisplay(epd,config,pricestack,other):
     if os.path.isfile(tokenfilename):
         logging.info("Getting token Image from Image directory")
         tokenimage = Image.open(tokenfilename).convert("RGBA")
-        # height = round(tokenimage.height * 200 / tokenimage.width)
-        # tokenimage = tokenimage.resize((200, height), Image.LANCZOS)
+        height = round(tokenimage.height * 264 / tokenimage.width)
+        tokenimage = tokenimage.resize((264, height), Image.LANCZOS)
         tokenimage = tokenimage.crop((0,0,264,176))
     else:
         logging.info("Getting token Image from Coingecko")
