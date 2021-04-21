@@ -1,7 +1,5 @@
 #!/usr/bin/python3
-from PIL import Image, ImageOps
-from PIL import ImageFont
-from PIL import ImageDraw
+from PIL import Image, ImageOps, ImageFont, ImageDraw
 import os
 import sys
 import logging
@@ -19,33 +17,26 @@ import numpy as np
 import yaml 
 import socket
 import textwrap
-dirname = os.path.dirname(__file__)
-fontdir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'fonts/googlefonts')
 configfile = os.path.join(os.path.dirname(os.path.realpath(__file__)),'config.yaml')
-font_date = ImageFont.truetype(os.path.join(fontdir,'PixelSplitter-Bold.ttf'), 11)
 photo_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'images')
 photo_list = os.listdir(photo_dir)
 
-def _place_text(img, text, x_offset=0, y_offset=0, fontsize=40, fontstring="Forum-Regular", fill=0):
+def _place_text(img, text, x_offset=0, y_offset=0, fontsize=40, fill=0):
     draw = ImageDraw.Draw(img)
-    try:
-        filename = os.path.join(dirname, './fonts/googlefonts/'+fontstring+'.ttf')
-        font = ImageFont.truetype(filename, fontsize)
-    except OSError:
-        font = ImageFont.truetype('/usr/share/fonts/TTF/DejaVuSans.ttf', fontsize)
+    font = ImageFont.truetype('/usr/share/fonts/TTF/DejaVuSans.ttf', fontsize)
     img_width, img_height = img.size
     text_width, _ = font.getsize(text)
     text_height = fontsize
     draw_x = (img_width - text_width)//2 + x_offset
     draw_y = (img_height - text_height)//2 + y_offset
-    draw.text((draw_x, draw_y), text, font=font,fill=fill )
+    draw.text((draw_x, draw_y), text, font=font, fill=fill)
 
 # Line break text
-def writewrappedlines(img, text, fontsize=16, y_text=20, height=15, width=25, fontstring="Roboto-Light"):
+def writewrappedlines(img, text, fontsize=16, y_text=20, height=15, width=25):
     lines = textwrap.wrap(text, width)
     numoflines=0
     for line in lines:
-        _place_text(img, line, 0, y_text, fontsize, fontstring)
+        _place_text(img, line, 0, y_text, fontsize)
         y_text += height
         numoflines += 1
     return img
@@ -59,9 +50,7 @@ def beanaproblem(epd, message):
     # Paste the bean
     thebean = Image.open(os.path.join(picdir, 'thebean.bmp'))
     image.paste(thebean, (60,45))
-    draw.text((95,15),str(time.strftime("%H:%M %a %d %b %Y")),font =font_date,fill = 0)
     writewrappedlines(image, "Problem:"+message)
-    # draw.text((15,150),message, font=font_date,fill = 0)
     image = ImageOps.mirror(image)
     epd.display_4Gray(epd.getbuffer_4Gray(image))
     thebean.close()
@@ -71,6 +60,7 @@ def beanaproblem(epd, message):
     return image
 
 def update_image(epd, config):
+    # Load image
     photo_path = os.path.join(photo_dir, photo_list[0])
     photo_image = Image.open(photo_path)
 
@@ -96,13 +86,8 @@ def update_image(epd, config):
     photo_image = photo_image.resize((264, height), Image.LANCZOS)
 
     # Crop
-    if height > 176:
-        upper = (height+176)/2
-        lower = (height-176)/2
-    else:
-        upper = 176
-        lower = 0
-    photo_image = photo_image.crop((0,lower,264,upper))
+    upper, lower = (height+176)/2, (height-176)/2 if height > 176 else upper, lower = 176, 0
+    photo_image = photo_image.crop((0, lower, 264, upper))
 
     # Make the photo black/white
     photo_image = photo_image.convert("RGBA")
@@ -134,12 +119,9 @@ def update_image(epd, config):
     # Return the photo
     return image 
 
-def display_image(epd, img):
-    epd.display_4Gray(epd.getbuffer_4Gray(img))
-
 def main():    
     logging.basicConfig(level=logging.DEBUG)
-    initialized=False 
+    initial_screen=False 
 
     # Initialise the display (once before loop)
     epd = epd2in7.EPD()  
@@ -192,17 +174,17 @@ def main():
                 last_time=fullupdate(epd,config,last_time)
 
             # Cycle photos    
-            if (time.time() - last_time > float(config['ticker']['updatefrequency'])) or (initialized == False):
+            if (time.time() - last_time > float(config['ticker']['updatefrequency'])) or (initial_screen == False):
                 # Update image
                 image = update_image(epd, config)
-                display_image(epd, image)
+                epd.display_4Gray(epd.getbuffer_4Gray(image))
                 
                 # Update time keeper
                 last_time=time.time()
                 time.sleep(0.2)
 
                 # Update initialization status
-                initialized = True
+                initial_screen = True
                 
                 # Make first photo the last in the list
                 if config['display']['cycle'] == True:
@@ -211,7 +193,7 @@ def main():
     except IOError as e:
         logging.info(e)
         image = beanaproblem(epd, str(e))
-        display_image(epd, image)  
+        epd.display_4Gray(epd.getbuffer_4Gray(image)) 
     except KeyboardInterrupt:    
         logging.info("ctrl + c:")
         epd2in7.epdconfig.module_exit()
