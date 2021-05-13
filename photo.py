@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-from PIL import Image, ImageOps, ImageDraw, ImageStat
+from PIL import Image, ImageOps, ImageDraw, ImageStat, ImageEnhance
 import math
 import os
 import logging
