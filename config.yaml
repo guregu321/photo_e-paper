@@ -4,4 +4,3 @@ display:
   orientation: 90
 ticker:
   updatefrequency: 20
-  image_list: a.jpg,b.jpg

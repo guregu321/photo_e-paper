@@ -122,9 +122,8 @@ def update_image(epd, config):
     # Return the photo
     return image 
 
-def cycle_photo(photo_list):
-     photo_list = photo_list[1:] + photo_list[:1]
-     return photo_list
+def cycle_photo(list):
+     photo_list = list[1:] + list[:1]
 
 
 def main():    
