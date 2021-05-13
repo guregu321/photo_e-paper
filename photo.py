@@ -2,7 +2,6 @@
 from PIL import Image, ImageOps, ImageDraw, ImageStat, ImageEnhance
 import math
 import os
-# import logging
 import RPi.GPIO as GPIO
 from waveshare_epd import epd2in7
 import time
@@ -91,29 +90,22 @@ def update_image(epd, config):
     if config['display']['inverted'] == True:
         image = ImageOps.invert(image)
 
-    # Return the photo
-    return image 
-
-def initialize_keys():
-    key1 = 5
-    key2 = 6
-    key3 = 13
-    key4 = 19
-    GPIO.setmode(GPIO.BCM)
-    GPIO.setup(key1, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-    GPIO.setup(key2, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-    GPIO.setup(key3, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-    GPIO.setup(key4, GPIO.IN, pull_up_down=GPIO.PUD_UP) 
+    epd.display_4Gray(epd.getbuffer_4Gray(image))
 
 def main():    
-    # logging.basicConfig(level=logging.DEBUG)
     initial_screen = False 
 
     # Initialise the display (once before loop)
     epd = epd2in7.EPD()  
     epd.Init_4Gray()
-    # logging.info("epd2in7 Picture Frame")
-    initialize_keys()
+
+    # Initialize the keys
+    key1, key2, key3, key4 = 5, 6, 13, 19
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(key1, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+    GPIO.setup(key2, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+    GPIO.setup(key3, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+    GPIO.setup(key4, GPIO.IN, pull_up_down=GPIO.PUD_UP) 
 
     # Get the configuration from config.yaml
     with open(configfile) as f:
@@ -135,20 +127,16 @@ def main():
             key3state = GPIO.input(key3)
             key4state = GPIO.input(key4)
             if key1state == False:
-                # logging.info('Cycle currencies')
                 crypto_list = currencycycle(config['ticker']['currency'])
                 config['ticker']['currency']=",".join(crypto_list)
                 last_time=fullupdate(epd, config, last_time)
             if key2state == False:
-                # logging.info('Rotate - 90')
                 config['display']['orientation'] = (config['display']['orientation']+90) % 360
                 last_time=fullupdate(epd,last_time)
             if key3state == False:
-                # logging.info('Invert Display')
                 config['display']['inverted'] = not config['display']['inverted']
                 last_time=fullupdate(epd,config,last_time)
             if key4state == False:
-                # logging.info('Cycle fiat')
                 fiat_list = currencycycle(config['ticker']['fiatcurrency'])
                 config['ticker']['fiatcurrency']=",".join(fiat_list)
                 last_time=fullupdate(epd,config,last_time)
@@ -156,8 +144,7 @@ def main():
             # Cycle photos    
             if (time.time() - last_time > float(config['ticker']['updatefrequency'])) or (initial_screen == False):
                 # Update image
-                image = update_image(epd, config)
-                epd.display_4Gray(epd.getbuffer_4Gray(image))
+                update_image(epd, config)
                 
                 # Update time keeper
                 last_time=time.time()
@@ -172,7 +159,6 @@ def main():
 
     except KeyboardInterrupt:    
         print("ctrl + c:")
-        # logging.info("ctrl + c:")
         epd2in7.epdconfig.module_exit()
         GPIO.cleanup()
         exit()
