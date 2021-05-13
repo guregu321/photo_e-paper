@@ -122,6 +122,13 @@ def update_image(epd, config):
     # Return the photo
     return image 
 
+def configwrite(config):
+    with open(configfile, 'w') as f:
+        data = yaml.dump(config, f)
+
+def cycle_photo(list):
+    cycled_photo = list[1:] + list[:1]
+    return cycled_photo
 
 def main():    
     logging.basicConfig(level=logging.DEBUG)
@@ -193,8 +200,8 @@ def main():
                 
                 # Make first photo the last in the list
                 if config['display']['cycle'] == True:
-                    # config['ticker']['image_list'] = photo_list[1:] + photo_list[:1]
-                    config['ticker']['image_list'] = config['ticker']['image_list'][1:] + config['ticker']['image_list'][:1]
+                    config['ticker']['image_list'] = cycle_photo(config['ticker']['image_list'])
+                    configwrite(config)
 
     except IOError as e:
         logging.info(e)
