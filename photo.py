@@ -1,5 +1,6 @@
 #!/usr/bin/python3
-from PIL import Image, ImageOps, ImageDraw
+from PIL import Image, ImageOps, ImageDraw, ImageStat
+import math
 import os
 import logging
 import RPi.GPIO as GPIO
@@ -29,11 +30,8 @@ def update_image(epd, config):
     orientation = exif.get(0x112, 1)
     photo_image = convert_image[orientation](photo_image)
 
-    """
-    画像の高さが足りない場合の処理を入れる
-    """
-    # If photo height is larger than the screen
-    if photo_image.width / photo_image.height <= 1.5:
+    # Reshape photo
+    if photo_image.width / photo_image.height <= 1.5: # If photo height is larger than the screen
         # Resize
         height = round(photo_image.height * 264 / photo_image.width)
         photo_image = photo_image.resize((264, height), Image.LANCZOS)
@@ -43,8 +41,7 @@ def update_image(epd, config):
         else:
             upper, lower = 176, 0
         photo_image = photo_image.crop((0, lower, 264, upper))
-    # If photo width is larger than the screen
-    else:
+    else: # If photo width is larger than the screen
         # Resize
         width = round(photo_image.width * 176 / photo_image.height)
         photo_image = photo_image.resize((width, 176), Image.LANCZOS)
@@ -54,6 +51,15 @@ def update_image(epd, config):
         else:
             upper, lower = 264, 0
         photo_image = photo_image.crop((lower, 0, upper, 176))
+
+
+    """
+    明るさの調整
+    """
+    # Check image brightness
+    r,g,b = ImageStat.Stat(photo_image).mean
+    brightness = math.sqrt(0.241*(r**2) + 0.691*(g**2) + 0.068*(b**2))
+    print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@", brightness)
 
     # Make the photo black/white
     photo_image = photo_image.convert("RGBA")
