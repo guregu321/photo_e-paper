@@ -1,10 +1,6 @@
 display:
-  cycle: false
+  cycle: true
   inverted: false
   orientation: 90
 ticker:
-  currency: ethereum,bitcoin
-  exchange: default
-  fiatcurrency: usd,eur,gbp
-  sparklinedays: 7
-  updatefrequency: 600
+  updatefrequency: 10
