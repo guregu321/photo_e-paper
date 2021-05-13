@@ -58,40 +58,10 @@ def update_image(epd, config):
 
     # Adjust brightness
     factor = 2 - brightness/100
-    # factor = 1
     enhancer = ImageEnhance.Brightness(photo_image)  
     photo_image = enhancer.enhance(factor)
-
-
-    """
-    明るさの調整
-    """
-    # Check image brightness
-
-    # 1 Grayscale average pixel
-    # im = photo_image.convert('L')
-    # stat = ImageStat.Stat(im)
-    # brightness = stat.mean[0]
-
-    # 2 Grayscale RMS
-    # im = photo_image.convert('L')
-    # stat = ImageStat.Stat(im)
-    # brightness = stat.rms[0]
-
-    # 3 Average pixel
-
     
-    print("@@@@@@@@@@@@@@@@@@@ brightness @@@@@@@@@@@@@@@@@@@@@@@@@@", brightness)
-
-    
-    
-    
-    
-    
-    
-    
-    
-    # Make the photo black/white
+    # Make photo black/white
     photo_image = photo_image.convert("RGBA")
 
     # Configure the photo to display
@@ -123,10 +93,6 @@ def update_image(epd, config):
 
     # Return the photo
     return image 
-
-# def configwrite(config):
-    # with open(configfile, 'w') as f:
-        # data = yaml.dump(config, f)
 
 
 def main():    
@@ -203,7 +169,6 @@ def main():
                 # Make first photo the last in the list
                 if config['display']['cycle'] == True:
                     config['ticker']['image_list'] = config['ticker']['image_list'][1:] + config['ticker']['image_list'][:1]
-                    # configwrite(config)
 
     except KeyboardInterrupt:    
         logging.info("ctrl + c:")
