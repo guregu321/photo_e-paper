@@ -189,6 +189,8 @@ def main():
                 # Update initialization status
                 initial_screen = True
                 
+                print(photo_list)
+
                 # Make first photo the last in the list
                 if config['display']['cycle'] == True:
                     photo_list = photo_list[1:] + photo_list[:1]
