@@ -122,9 +122,6 @@ def update_image(epd, config):
     # Return the photo
     return image 
 
-def cycle_photo(list):
-    
-
 
 def main():    
     logging.basicConfig(level=logging.DEBUG)
