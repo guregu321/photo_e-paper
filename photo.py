@@ -2,7 +2,7 @@
 from PIL import Image, ImageOps, ImageDraw, ImageStat, ImageEnhance
 import math
 import os
-import logging
+# import logging
 import RPi.GPIO as GPIO
 from waveshare_epd import epd2in7
 import time
@@ -94,37 +94,37 @@ def update_image(epd, config):
     # Return the photo
     return image 
 
+def initialize_keys():
+    key1 = 5
+    key2 = 6
+    key3 = 13
+    key4 = 19
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(key1, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+    GPIO.setup(key2, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+    GPIO.setup(key3, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+    GPIO.setup(key4, GPIO.IN, pull_up_down=GPIO.PUD_UP) 
 
 def main():    
-    logging.basicConfig(level=logging.DEBUG)
-    initial_screen=False 
+    # logging.basicConfig(level=logging.DEBUG)
+    initial_screen = False 
 
     # Initialise the display (once before loop)
     epd = epd2in7.EPD()  
     epd.Init_4Gray()
-    logging.info("epd2in7 Picture Frame")
+    # logging.info("epd2in7 Picture Frame")
+    initialize_keys()
 
+    # Get the configuration from config.yaml
+    with open(configfile) as f:
+        config = yaml.load(f, Loader=yaml.FullLoader)
+    config['display']['orientation'] = int(config['display']['orientation'])
+    config['ticker']['image_list'] = photo_list
+
+    # Set time
+    last_time = time.time()
+       
     try:
-        # Get the configuration from config.yaml
-        with open(configfile) as f:
-            config = yaml.load(f, Loader=yaml.FullLoader)
-        config['display']['orientation']=int(config['display']['orientation'])
-        config['ticker']['image_list'] = photo_list
-        
-        # Set time
-        last_time = time.time()
-
-        # Get the buttons for 2.7in EPD set up
-        key1 = 5
-        key2 = 6
-        key3 = 13
-        key4 = 19
-        GPIO.setmode(GPIO.BCM)
-        GPIO.setup(key1, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-        GPIO.setup(key2, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-        GPIO.setup(key3, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-        GPIO.setup(key4, GPIO.IN, pull_up_down=GPIO.PUD_UP) 
-        
         while True:
             """
             ボタンの設定
@@ -135,20 +135,20 @@ def main():
             key3state = GPIO.input(key3)
             key4state = GPIO.input(key4)
             if key1state == False:
-                logging.info('Cycle currencies')
+                # logging.info('Cycle currencies')
                 crypto_list = currencycycle(config['ticker']['currency'])
                 config['ticker']['currency']=",".join(crypto_list)
                 last_time=fullupdate(epd, config, last_time)
             if key2state == False:
-                logging.info('Rotate - 90')
+                # logging.info('Rotate - 90')
                 config['display']['orientation'] = (config['display']['orientation']+90) % 360
                 last_time=fullupdate(epd,last_time)
             if key3state == False:
-                logging.info('Invert Display')
+                # logging.info('Invert Display')
                 config['display']['inverted'] = not config['display']['inverted']
                 last_time=fullupdate(epd,config,last_time)
             if key4state == False:
-                logging.info('Cycle fiat')
+                # logging.info('Cycle fiat')
                 fiat_list = currencycycle(config['ticker']['fiatcurrency'])
                 config['ticker']['fiatcurrency']=",".join(fiat_list)
                 last_time=fullupdate(epd,config,last_time)
@@ -171,7 +171,8 @@ def main():
                     config['ticker']['image_list'] = config['ticker']['image_list'][1:] + config['ticker']['image_list'][:1]
 
     except KeyboardInterrupt:    
-        logging.info("ctrl + c:")
+        print("ctrl + c:")
+        # logging.info("ctrl + c:")
         epd2in7.epdconfig.module_exit()
         GPIO.cleanup()
         exit()
