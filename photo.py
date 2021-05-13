@@ -93,7 +93,7 @@ def update_image(epd, config):
     print("Displaying {}".format(config['ticker']['image_list'][0]))
     epd.display_4Gray(epd.getbuffer_4Gray(image))
 
-def display_info(epd):
+def display_info(epd, config):
     photo_image = Image.open(infofile)
     # Clear with white
     image = Image.new('L', (epd.height, epd.width), 255)
@@ -153,7 +153,7 @@ def main():
                 update_image(epd, config)
                 last_time=time.time()
             if GPIO.input(key4) == False: # Display info
-                display_info(epd)
+                display_info(epd, config)
                 last_time=time.time()
 
             # Cycle photos    
