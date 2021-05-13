@@ -62,10 +62,15 @@ def update_image(epd, config):
     """
     # Check image brightness
 
-    # 2 Grayscale RMS
+    # 1 Grayscale average pixel
     im = photo_image.convert('L')
     stat = ImageStat.Stat(im)
-    brightness = stat.rms[0]
+    brightness = stat.mean[0]
+
+    # 2 Grayscale RMS
+    # im = photo_image.convert('L')
+    # stat = ImageStat.Stat(im)
+    # brightness = stat.rms[0]
 
     # 3 Average pixel
     # r,g,b = ImageStat.Stat(photo_image).mean
