@@ -71,7 +71,6 @@ def update_image(epd, config):
     if config['display']['orientation'] == 0 or config['display']['orientation'] == 180 :
         # Clear with white
         image = Image.new('L', (epd.width, epd.height), 255)
-        # draw = ImageDraw.Draw(image)
         # Display photo
         image.paste(photo_image, (0,0))
         if config['display']['orientation'] == 180 :
@@ -79,8 +78,7 @@ def update_image(epd, config):
     if config['display']['orientation'] == 90 or config['display']['orientation'] == 270 :
         # Clear with white
         image = Image.new('L', (epd.height, epd.width), 255)
-        # draw = ImageDraw.Draw(image) 
-        #Display photo
+        # Display photo
         image.paste(photo_image, (0,0))
         if config['display']['orientation'] == 270 :
             image=image.rotate(180, expand=True)
@@ -93,6 +91,19 @@ def update_image(epd, config):
 
     # Display the image on the screen
     print("Displaying {}".format(config['ticker']['image_list'][0]))
+    epd.display_4Gray(epd.getbuffer_4Gray(image))
+
+def display_info():
+    photo_image = Image.open(infofile)
+    # Clear with white
+    image = Image.new('L', (epd.height, epd.width), 255)
+    # Display photo
+    image.paste(photo_image, (0,0))
+    if config['display']['orientation'] == 270 :
+        image=image.rotate(180, expand=True)
+    # This is a hack to deal with the mirroring that goes on in 4Gray Horizontal
+    image = ImageOps.mirror(image)
+    print("Displaying info")
     epd.display_4Gray(epd.getbuffer_4Gray(image))
 
 def main():    
@@ -141,19 +152,9 @@ def main():
                 config['display']['orientation'] = (config['display']['orientation']+90) % 360
                 update_image(epd, config)
                 last_time=time.time()
-            if key4state == False:
-                photo_image = Image.open(infofile)
-                # Clear with white
-                image = Image.new('L', (epd.height, epd.width), 255)
-                # draw = ImageDraw.Draw(image)
-                #Display photo
-                image.paste(photo_image, (0,0))
-                if config['display']['orientation'] == 270 :
-                    image=image.rotate(180, expand=True)
-                # This is a hack to deal with the mirroring that goes on in 4Gray Horizontal
-                image = ImageOps.mirror(image)
-                print("Displaying info")
-                epd.display_4Gray(epd.getbuffer_4Gray(image))
+            if key4state == False: # Display info
+                display_info()
+                last_time=time.time()
 
             # Cycle photos    
             if (time.time() - last_time > float(config['ticker']['updatefrequency'])) or (initial_screen == False):
