@@ -21,44 +21,6 @@ configfile = os.path.join(os.path.dirname(os.path.realpath(__file__)),'config.ya
 photo_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'images')
 photo_list = os.listdir(photo_dir)
 
-def _place_text(img, text, x_offset=0, y_offset=0, fontsize=40, fill=0):
-    draw = ImageDraw.Draw(img)
-    font = ImageFont.truetype('/usr/share/fonts/TTF/DejaVuSans.ttf', fontsize)
-    img_width, img_height = img.size
-    text_width, _ = font.getsize(text)
-    text_height = fontsize
-    draw_x = (img_width - text_width)//2 + x_offset
-    draw_y = (img_height - text_height)//2 + y_offset
-    draw.text((draw_x, draw_y), text, font=font, fill=fill)
-
-# Line break text
-def writewrappedlines(img, text, fontsize=16, y_text=20, height=15, width=25):
-    lines = textwrap.wrap(text, width)
-    numoflines=0
-    for line in lines:
-        _place_text(img, line, 0, y_text, fontsize)
-        y_text += height
-        numoflines += 1
-    return img
-
-# Create error screen
-def beanaproblem(epd, message):
-    # Clear with white
-    image = Image.new('L', (epd.height, epd.width), 255)
-    draw = ImageDraw.Draw(image)
-
-    # Paste the bean
-    thebean = Image.open(os.path.join(picdir, 'thebean.bmp'))
-    image.paste(thebean, (60,45))
-    writewrappedlines(image, "Problem:"+message)
-    image = ImageOps.mirror(image)
-    epd.display_4Gray(epd.getbuffer_4Gray(image))
-    thebean.close()
-    # Reload last good config.yaml
-    with open(configfile) as f:
-        config = yaml.load(f, Loader=yaml.FullLoader)
-    return image
-
 def update_image(epd, config):
     # Load image
     photo_path = os.path.join(photo_dir, config['ticker']['image_list'][0])
@@ -122,13 +84,10 @@ def update_image(epd, config):
     # Return the photo
     return image 
 
-def configwrite(config):
-    with open(configfile, 'w') as f:
-        data = yaml.dump(config, f)
+# def configwrite(config):
+    # with open(configfile, 'w') as f:
+        # data = yaml.dump(config, f)
 
-def cycle_photo(list):
-    cycled_photo = list[1:] + list[:1]
-    return cycled_photo
 
 def main():    
     logging.basicConfig(level=logging.DEBUG)
@@ -201,13 +160,8 @@ def main():
                 # Make first photo the last in the list
                 if config['display']['cycle'] == True:
                     config['ticker']['image_list'] = config['ticker']['image_list'][1:] + config['ticker']['image_list'][:1]
-                    # config['ticker']['image_list'] = cycle_photo(config['ticker']['image_list'])
                     # configwrite(config)
 
-    except IOError as e:
-        logging.info(e)
-        image = beanaproblem(epd, str(e))
-        epd.display_4Gray(epd.getbuffer_4Gray(image)) 
     except KeyboardInterrupt:    
         logging.info("ctrl + c:")
         epd2in7.epdconfig.module_exit()

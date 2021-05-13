@@ -1,6 +1,6 @@
 display:
   cycle: true
   inverted: false
-  orientation: 90
+  orientation: 180
 ticker:
   updatefrequency: 10
