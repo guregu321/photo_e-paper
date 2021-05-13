@@ -91,6 +91,7 @@ def update_image(epd, config):
         image = ImageOps.invert(image)
 
     # Display the image on the screen
+    print("Displaying {}".format(config['ticker']['image_list'][0]))
     epd.display_4Gray(epd.getbuffer_4Gray(image))
 
 def main():    
@@ -129,17 +130,18 @@ def main():
             key4state = GPIO.input(key4)
             if key1state == False:  # Show previous photo
                 config['ticker']['image_list'] = config['ticker']['image_list'][-1:] + config['ticker']['image_list'][:-1]
-                update_image(epd, config)                
+                update_image(epd, config)   
+                last_time=time.time()             
             if key2state == False:  # Show next photo
                 config['ticker']['image_list'] = config['ticker']['image_list'][1:] + config['ticker']['image_list'][:1]
                 update_image(epd, config)
-            if key3state == False:
-                config['display']['inverted'] = not config['display']['inverted']
-                last_time=fullupdate(epd,config,last_time)
+                last_time=time.time()
+            if key3state == False:  # Rotate 90 degrees
+                config['display']['orientation'] = (config['display']['orientation']+90) % 360
+                update_image(epd, config)
+                last_time=time.time()
             if key4state == False:
-                fiat_list = currencycycle(config['ticker']['fiatcurrency'])
-                config['ticker']['fiatcurrency']=",".join(fiat_list)
-                last_time=fullupdate(epd,config,last_time)
+                continue
 
             # Cycle photos    
             if (time.time() - last_time > float(config['ticker']['updatefrequency'])) or (initial_screen == False):
