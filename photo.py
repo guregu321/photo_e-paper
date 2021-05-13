@@ -193,7 +193,8 @@ def main():
                 
                 # Make first photo the last in the list
                 if config['display']['cycle'] == True:
-                    config['ticker']['image_list'] = photo_list[1:] + photo_list[:1]
+                    # config['ticker']['image_list'] = photo_list[1:] + photo_list[:1]
+                    config['ticker']['image_list'] = config['ticker']['image_list'][1:] + config['ticker']['image_list'][:1]
 
     except IOError as e:
         logging.info(e)
