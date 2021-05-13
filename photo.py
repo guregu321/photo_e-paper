@@ -134,22 +134,23 @@ def main():
     try:
         while True:
             # Detect button press
-            if any([GPIO.input(key1), GPIO.input(key2), GPIO.input(key3), GPIO.input(key4)]) == False:
+            if all([GPIO.input(key1), GPIO.input(key2), GPIO.input(key3), GPIO.input(key4)]) == False:
                 if GPIO.input(key1) == False:  # Show previous photo
                     config['ticker']['image_list'] = config['ticker']['image_list'][-1:] + config['ticker']['image_list'][:-1]
                     update_image(epd, config)  
                     info_status = False 
                     last_time=time.time()             
-                if GPIO.input(key2) == False:  # Show next photo
+                elif GPIO.input(key2) == False:  # Show next photo
                     config['ticker']['image_list'] = config['ticker']['image_list'][1:] + config['ticker']['image_list'][:1]
                     update_image(epd, config)
                     info_status = False
                     last_time=time.time()
-                if GPIO.input(key3) == False:  # Rotate 90 degrees
+                elif GPIO.input(key3) == False:  # Rotate 90 degrees
                     config['display']['orientation'] = (config['display']['orientation']+90) % 360
                     update_image(epd, config)
                     info_status = False
                     last_time=time.time()
+                
                 if GPIO.input(key4) == False: # Display info
                     if info_status == True:
                         update_image(epd, config)
