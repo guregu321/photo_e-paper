@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 from PIL import Image, ImageOps, ImageFont, ImageDraw
 import os
-import sys
+# import sys
 import logging
 import RPi.GPIO as GPIO
 from waveshare_epd import epd2in7
