@@ -86,7 +86,10 @@ def update_image(epd, config):
     photo_image = photo_image.resize((264, height), Image.LANCZOS)
 
     # Crop
-    upper, lower = (height+176)/2, (height-176)/2 if height > 176 else upper, lower = 176, 0
+    if height > 176:
+        upper, lower = (height+176)/2, (height-176)/2
+    else:
+        upper, lower = 176, 0
     photo_image = photo_image.crop((0, lower, 264, upper))
 
     # Make the photo black/white
