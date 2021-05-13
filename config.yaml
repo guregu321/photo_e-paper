@@ -3,4 +3,4 @@ display:
   inverted: false
   orientation: 90
 ticker:
-  updatefrequency: 10
+  updatefrequency: 120

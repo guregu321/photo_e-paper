@@ -127,12 +127,12 @@ def main():
             key2state = GPIO.input(key2)
             key3state = GPIO.input(key3)
             key4state = GPIO.input(key4)
-            if key1state == False:  # Show next photo
+            if key1state == False:  # Show previous photo
+                config['ticker']['image_list'] = config['ticker']['image_list'][-1:] + config['ticker']['image_list'][:-1]
+                update_image(epd, config)                
+            if key2state == False:  # Show next photo
                 config['ticker']['image_list'] = config['ticker']['image_list'][1:] + config['ticker']['image_list'][:1]
                 update_image(epd, config)
-            if key2state == False:
-                config['display']['orientation'] = (config['display']['orientation']+90) % 360
-                last_time=fullupdate(epd,last_time)
             if key3state == False:
                 config['display']['inverted'] = not config['display']['inverted']
                 last_time=fullupdate(epd,config,last_time)
