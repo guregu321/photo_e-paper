@@ -108,6 +108,7 @@ def display_info(epd, config):
 
 def main():    
     initial_screen = False 
+    info_status = False
 
     # Initialise the display (once before loop)
     epd = epd2in7.EPD()  
@@ -138,15 +139,18 @@ def main():
             # Detect button press
             if GPIO.input(key1) == False:  # Show previous photo
                 config['ticker']['image_list'] = config['ticker']['image_list'][-1:] + config['ticker']['image_list'][:-1]
-                update_image(epd, config)   
+                update_image(epd, config)  
+                info_status = False 
                 last_time=time.time()             
             if GPIO.input(key2) == False:  # Show next photo
                 config['ticker']['image_list'] = config['ticker']['image_list'][1:] + config['ticker']['image_list'][:1]
                 update_image(epd, config)
+                info_status = False
                 last_time=time.time()
             if GPIO.input(key3) == False:  # Rotate 90 degrees
                 config['display']['orientation'] = (config['display']['orientation']+90) % 360
                 update_image(epd, config)
+                info_status = False
                 last_time=time.time()
             if GPIO.input(key4) == False: # Display info
                 if info_status == True:
@@ -172,6 +176,7 @@ def main():
 
                 # Update initialization status
                 initial_screen = True
+                info_status = False
 
     except KeyboardInterrupt:    
         print("ctrl + c: exiting")
