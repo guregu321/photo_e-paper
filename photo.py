@@ -1,22 +1,12 @@
 #!/usr/bin/python3
-from PIL import Image, ImageOps, ImageFont, ImageDraw
+from PIL import Image, ImageOps, ImageDraw, ImageStat, ImageEnhance
+import math
 import os
-import sys
 import logging
 import RPi.GPIO as GPIO
 from waveshare_epd import epd2in7
 import time
-os.environ['TZ'] = 'Asia/Tokyo'
-time.tzset()
-import requests
-import urllib, json
-import matplotlib as mpl
-mpl.use('Agg')
-import matplotlib.pyplot as plt
-import numpy as np
 import yaml 
-import socket
-import textwrap
 configfile = os.path.join(os.path.dirname(os.path.realpath(__file__)),'config.yaml')
 photo_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'images')
 photo_list = os.listdir(photo_dir)
@@ -40,21 +30,38 @@ def update_image(epd, config):
     orientation = exif.get(0x112, 1)
     photo_image = convert_image[orientation](photo_image)
 
-    """
-    画像の高さが足りない場合の処理を入れる
-    """
-    # Resize
-    height = round(photo_image.height * 264 / photo_image.width)
-    photo_image = photo_image.resize((264, height), Image.LANCZOS)
+    # Reshape photo
+    if photo_image.width / photo_image.height <= 1.5: # If photo height is larger than the screen
+        # Resize
+        height = round(photo_image.height * 264 / photo_image.width)
+        photo_image = photo_image.resize((264, height), Image.LANCZOS)
+        # Crop
+        if height > 176:
+            upper, lower = (height+176)/2, (height-176)/2
+        else:
+            upper, lower = 176, 0
+        photo_image = photo_image.crop((0, lower, 264, upper))
+    else: # If photo width is larger than the screen
+        # Resize
+        width = round(photo_image.width * 176 / photo_image.height)
+        photo_image = photo_image.resize((width, 176), Image.LANCZOS)
+        # Crop
+        if width > 264:
+            upper, lower = (width+264)/2, (width-264)/2
+        else:
+            upper, lower = 264, 0
+        photo_image = photo_image.crop((lower, 0, upper, 176))
 
-    # Crop
-    if height > 176:
-        upper, lower = (height+176)/2, (height-176)/2
-    else:
-        upper, lower = 176, 0
-    photo_image = photo_image.crop((0, lower, 264, upper))
+    # Detect average brightness
+    r,g,b = ImageStat.Stat(photo_image).mean
+    brightness = math.sqrt(0.241*(r**2) + 0.691*(g**2) + 0.068*(b**2))
 
-    # Make the photo black/white
+    # Adjust brightness
+    factor = 2 - brightness/100
+    enhancer = ImageEnhance.Brightness(photo_image)  
+    photo_image = enhancer.enhance(factor)
+    
+    # Make photo black/white
     photo_image = photo_image.convert("RGBA")
 
     # Configure the photo to display
@@ -86,10 +93,6 @@ def update_image(epd, config):
 
     # Return the photo
     return image 
-
-# def configwrite(config):
-    # with open(configfile, 'w') as f:
-        # data = yaml.dump(config, f)
 
 
 def main():    
@@ -123,6 +126,9 @@ def main():
         GPIO.setup(key4, GPIO.IN, pull_up_down=GPIO.PUD_UP) 
         
         while True:
+            """
+            ボタンの設定
+            """
             # Detect button press
             key1state = GPIO.input(key1)
             key2state = GPIO.input(key2)
@@ -163,7 +169,6 @@ def main():
                 # Make first photo the last in the list
                 if config['display']['cycle'] == True:
                     config['ticker']['image_list'] = config['ticker']['image_list'][1:] + config['ticker']['image_list'][:1]
-                    # configwrite(config)
 
     except KeyboardInterrupt:    
         logging.info("ctrl + c:")
