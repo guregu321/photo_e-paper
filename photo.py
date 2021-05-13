@@ -144,7 +144,7 @@ def main():
         with open(configfile) as f:
             config = yaml.load(f, Loader=yaml.FullLoader)
         config['display']['orientation']=int(config['display']['orientation'])
-        # config['ticker']['image_list'] = photo_list
+        config['ticker']['image_list'] = photo_list
         
         # Set time
         last_time = time.time()
