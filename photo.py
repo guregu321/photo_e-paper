@@ -53,14 +53,34 @@ def update_image(epd, config):
         photo_image = photo_image.crop((lower, 0, upper, 176))
 
 
+
+
+
+
     """
     明るさの調整
     """
     # Check image brightness
-    r,g,b = ImageStat.Stat(photo_image).mean
-    brightness = math.sqrt(0.241*(r**2) + 0.691*(g**2) + 0.068*(b**2))
-    print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@", brightness)
 
+    # 2 Grayscale RMS
+    im = photo_image.convert('L')
+    stat = ImageStat.Stat(im)
+    brightness = stat.rms[0]
+
+    # 3 Average pixel
+    # r,g,b = ImageStat.Stat(photo_image).mean
+    # brightness = math.sqrt(0.241*(r**2) + 0.691*(g**2) + 0.068*(b**2))
+    
+    print("@@@@@@@@@@@@@@@@@@@ brightness @@@@@@@@@@@@@@@@@@@@@@@@@@", brightness)
+
+    
+    
+    
+    
+    
+    
+    
+    
     # Make the photo black/white
     photo_image = photo_image.convert("RGBA")
 
