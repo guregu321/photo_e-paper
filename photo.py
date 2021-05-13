@@ -122,6 +122,11 @@ def update_image(epd, config):
     # Return the photo
     return image 
 
+def cycle_photo(photo_list):
+     photo_list = photo_list[1:] + photo_list[:1]
+     return photo_list
+
+
 def main():    
     logging.basicConfig(level=logging.DEBUG)
     initial_screen=False 
@@ -136,7 +141,7 @@ def main():
         with open(configfile) as f:
             config = yaml.load(f, Loader=yaml.FullLoader)
         config['display']['orientation']=int(config['display']['orientation'])
-
+        
         # Set time
         last_time = time.time()
 
@@ -193,7 +198,7 @@ def main():
 
                 # Make first photo the last in the list
                 if config['display']['cycle'] == True:
-                    photo_list = photo_list[1:] + photo_list[:1]
+                    cycle_photo(photo_list)
 
     except IOError as e:
         logging.info(e)
