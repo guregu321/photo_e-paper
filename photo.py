@@ -90,6 +90,7 @@ def update_image(epd, config):
     if config['display']['inverted'] == True:
         image = ImageOps.invert(image)
 
+    # Display the image on the screen
     epd.display_4Gray(epd.getbuffer_4Gray(image))
 
 def main():    
@@ -126,10 +127,9 @@ def main():
             key2state = GPIO.input(key2)
             key3state = GPIO.input(key3)
             key4state = GPIO.input(key4)
-            if key1state == False:
-                crypto_list = currencycycle(config['ticker']['currency'])
-                config['ticker']['currency']=",".join(crypto_list)
-                last_time=fullupdate(epd, config, last_time)
+            if key1state == False:  # Show next photo
+                config['ticker']['image_list'] = config['ticker']['image_list'][1:] + config['ticker']['image_list'][:1]
+                update_image(epd, config)
             if key2state == False:
                 config['display']['orientation'] = (config['display']['orientation']+90) % 360
                 last_time=fullupdate(epd,last_time)
@@ -143,6 +143,10 @@ def main():
 
             # Cycle photos    
             if (time.time() - last_time > float(config['ticker']['updatefrequency'])) or (initial_screen == False):
+                # Make first photo the last in the list
+                if (config['display']['cycle'] == True) and (initial_screen == True):
+                    config['ticker']['image_list'] = config['ticker']['image_list'][1:] + config['ticker']['image_list'][:1]
+                
                 # Update image
                 update_image(epd, config)
                 
@@ -152,13 +156,9 @@ def main():
 
                 # Update initialization status
                 initial_screen = True
-                
-                # Make first photo the last in the list
-                if config['display']['cycle'] == True:
-                    config['ticker']['image_list'] = config['ticker']['image_list'][1:] + config['ticker']['image_list'][:1]
 
     except KeyboardInterrupt:    
-        print("ctrl + c:")
+        print("ctrl + c: exiting")
         epd2in7.epdconfig.module_exit()
         GPIO.cleanup()
         exit()
