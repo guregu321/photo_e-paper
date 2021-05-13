@@ -7,6 +7,7 @@ from waveshare_epd import epd2in7
 import time
 import yaml 
 configfile = os.path.join(os.path.dirname(os.path.realpath(__file__)),'config.yaml')
+infofile = os.path.join(os.path.dirname(os.path.realpath(__file__)),'info.jpg')
 photo_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'images')
 photo_list = os.listdir(photo_dir)
 
@@ -70,7 +71,7 @@ def update_image(epd, config):
     if config['display']['orientation'] == 0 or config['display']['orientation'] == 180 :
         # Clear with white
         image = Image.new('L', (epd.width, epd.height), 255)
-        draw = ImageDraw.Draw(image)
+        # draw = ImageDraw.Draw(image)
         # Display photo
         image.paste(photo_image, (0,0))
         if config['display']['orientation'] == 180 :
@@ -78,7 +79,7 @@ def update_image(epd, config):
     if config['display']['orientation'] == 90 or config['display']['orientation'] == 270 :
         # Clear with white
         image = Image.new('L', (epd.height, epd.width), 255)
-        draw = ImageDraw.Draw(image) 
+        # draw = ImageDraw.Draw(image) 
         #Display photo
         image.paste(photo_image, (0,0))
         if config['display']['orientation'] == 270 :
@@ -141,7 +142,18 @@ def main():
                 update_image(epd, config)
                 last_time=time.time()
             if key4state == False:
-                continue
+                photo_image = Image.open(infofile)
+                # Clear with white
+                image = Image.new('L', (epd.height, epd.width), 255)
+                # draw = ImageDraw.Draw(image)
+                #Display photo
+                image.paste(photo_image, (0,0))
+                if config['display']['orientation'] == 270 :
+                    image=image.rotate(180, expand=True)
+                # This is a hack to deal with the mirroring that goes on in 4Gray Horizontal
+                image = ImageOps.mirror(image)
+                print("Displaying info")
+                epd.display_4Gray(epd.getbuffer_4Gray(image))
 
             # Cycle photos    
             if (time.time() - last_time > float(config['ticker']['updatefrequency'])) or (initial_screen == False):
