@@ -144,7 +144,7 @@ def main():
         with open(configfile) as f:
             config = yaml.load(f, Loader=yaml.FullLoader)
         config['display']['orientation']=int(config['display']['orientation'])
-        config['ticker']['image_list'] = photo_list
+        # config['ticker']['image_list'] = photo_list
         
         # Set time
         last_time = time.time()
@@ -200,8 +200,9 @@ def main():
                 
                 # Make first photo the last in the list
                 if config['display']['cycle'] == True:
-                    config['ticker']['image_list'] = cycle_photo(config['ticker']['image_list'])
-                    configwrite(config)
+                    config['ticker']['image_list'] = config['ticker']['image_list'][1:] + config['ticker']['image_list'][:1]
+                    # config['ticker']['image_list'] = cycle_photo(config['ticker']['image_list'])
+                    # configwrite(config)
 
     except IOError as e:
         logging.info(e)
