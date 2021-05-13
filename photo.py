@@ -52,9 +52,14 @@ def update_image(epd, config):
             upper, lower = 264, 0
         photo_image = photo_image.crop((lower, 0, upper, 176))
 
+    # Detect average brightness
+    r,g,b = ImageStat.Stat(photo_image).mean
+    brightness = math.sqrt(0.241*(r**2) + 0.691*(g**2) + 0.068*(b**2))
 
-
-
+    # Adjust brightness
+    factor = 2 - brightness
+    enhancer = ImageEnhance.Brightness(photo_image)  
+    photo_image = enhancer.enhance(factor)
 
 
     """
@@ -63,9 +68,9 @@ def update_image(epd, config):
     # Check image brightness
 
     # 1 Grayscale average pixel
-    im = photo_image.convert('L')
-    stat = ImageStat.Stat(im)
-    brightness = stat.mean[0]
+    # im = photo_image.convert('L')
+    # stat = ImageStat.Stat(im)
+    # brightness = stat.mean[0]
 
     # 2 Grayscale RMS
     # im = photo_image.convert('L')
@@ -73,8 +78,7 @@ def update_image(epd, config):
     # brightness = stat.rms[0]
 
     # 3 Average pixel
-    # r,g,b = ImageStat.Stat(photo_image).mean
-    # brightness = math.sqrt(0.241*(r**2) + 0.691*(g**2) + 0.068*(b**2))
+
     
     print("@@@@@@@@@@@@@@@@@@@ brightness @@@@@@@@@@@@@@@@@@@@@@@@@@", brightness)
 
