@@ -58,6 +58,9 @@ def update_image(epd, config):
     photo_image = photo_image.convert("RGBA")
 
     # Configure the photo to display
+    """
+    180度にした時の分岐
+    """
     if config['display']['orientation'] == 0 or config['display']['orientation'] == 180 :
         # Clear with white
         image = Image.new('L', (epd.width, epd.height), 255)
