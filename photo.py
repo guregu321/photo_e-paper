@@ -136,10 +136,6 @@ def main():
             ボタンの設定
             """
             # Detect button press
-            # key1state = GPIO.input(key1)
-            # key2state = GPIO.input(key2)
-            # key3state = GPIO.input(key3)
-            # key4state = GPIO.input(key4)
             if GPIO.input(key1) == False:  # Show previous photo
                 config['ticker']['image_list'] = config['ticker']['image_list'][-1:] + config['ticker']['image_list'][:-1]
                 update_image(epd, config)   
@@ -153,7 +149,12 @@ def main():
                 update_image(epd, config)
                 last_time=time.time()
             if GPIO.input(key4) == False: # Display info
-                display_info(epd, config)
+                if info_status == True:
+                    update_image(epd, config)
+                    info_status = False
+                else:
+                    display_info(epd, config)
+                    info_status = True
                 last_time=time.time()
 
             # Cycle photos    
