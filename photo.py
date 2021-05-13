@@ -61,7 +61,7 @@ def beanaproblem(epd, message):
 
 def update_image(epd, config):
     # Load image
-    photo_path = os.path.join(photo_dir, photo_list[0])
+    photo_path = os.path.join(photo_dir, config['ticker']['image_list'][0])
     photo_image = Image.open(photo_path)
 
     # Fix orientation: PIL changes the orientation of vertical images
@@ -137,6 +137,7 @@ def main():
         with open(configfile) as f:
             config = yaml.load(f, Loader=yaml.FullLoader)
         config['display']['orientation']=int(config['display']['orientation'])
+        config['ticker']['image_list'] = photo_list
         
         # Set time
         last_time = time.time()
@@ -190,12 +191,9 @@ def main():
                 # Update initialization status
                 initial_screen = True
                 
-                print(photo_list)
-
                 # Make first photo the last in the list
                 if config['display']['cycle'] == True:
                     config['ticker']['image_list'] = photo_list[1:] + photo_list[:1]
-                    print(config['ticker']['image_list'])
 
     except IOError as e:
         logging.info(e)
