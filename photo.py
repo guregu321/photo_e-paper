@@ -93,7 +93,7 @@ def update_image(epd, config):
     print("Displaying {}".format(config['ticker']['image_list'][0]))
     epd.display_4Gray(epd.getbuffer_4Gray(image))
 
-def display_info():
+def display_info(epd):
     photo_image = Image.open(infofile)
     # Clear with white
     image = Image.new('L', (epd.height, epd.width), 255)
@@ -136,24 +136,24 @@ def main():
             ボタンの設定
             """
             # Detect button press
-            key1state = GPIO.input(key1)
-            key2state = GPIO.input(key2)
-            key3state = GPIO.input(key3)
-            key4state = GPIO.input(key4)
-            if key1state == False:  # Show previous photo
+            # key1state = GPIO.input(key1)
+            # key2state = GPIO.input(key2)
+            # key3state = GPIO.input(key3)
+            # key4state = GPIO.input(key4)
+            if GPIO.input(key1) == False:  # Show previous photo
                 config['ticker']['image_list'] = config['ticker']['image_list'][-1:] + config['ticker']['image_list'][:-1]
                 update_image(epd, config)   
                 last_time=time.time()             
-            if key2state == False:  # Show next photo
+            if GPIO.input(key2) == False:  # Show next photo
                 config['ticker']['image_list'] = config['ticker']['image_list'][1:] + config['ticker']['image_list'][:1]
                 update_image(epd, config)
                 last_time=time.time()
-            if key3state == False:  # Rotate 90 degrees
+            if GPIO.input(key3) == False:  # Rotate 90 degrees
                 config['display']['orientation'] = (config['display']['orientation']+90) % 360
                 update_image(epd, config)
                 last_time=time.time()
-            if key4state == False: # Display info
-                display_info()
+            if GPIO.input(key4) == False: # Display info
+                display_info(epd)
                 last_time=time.time()
 
             # Cycle photos    
