@@ -123,7 +123,7 @@ def update_image(epd, config):
     return image 
 
 def cycle_photo(list):
-     photo_list = list[1:] + list[:1]
+    
 
 
 def main():    
@@ -197,7 +197,8 @@ def main():
 
                 # Make first photo the last in the list
                 if config['display']['cycle'] == True:
-                    cycle_photo(photo_list)
+                    config['ticker']['image_list'] = photo_list[1:] + photo_list[:1]
+                    print(config['ticker']['image_list'])
 
     except IOError as e:
         logging.info(e)

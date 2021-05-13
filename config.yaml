@@ -4,3 +4,4 @@ display:
   orientation: 90
 ticker:
   updatefrequency: 20
+  image_list: asdf.jpg,asdsf.jpg
