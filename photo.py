@@ -57,8 +57,8 @@ def update_image(epd, config):
     brightness = math.sqrt(0.241*(r**2) + 0.691*(g**2) + 0.068*(b**2))
 
     # Adjust brightness
-    # factor = 2 - brightness
-    factor = 1
+    factor = 2 - brightness/100
+    # factor = 1
     enhancer = ImageEnhance.Brightness(photo_image)  
     photo_image = enhancer.enhance(factor)
 
