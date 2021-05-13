@@ -1,22 +1,11 @@
 #!/usr/bin/python3
-from PIL import Image, ImageOps, ImageFont, ImageDraw
+from PIL import Image, ImageOps, ImageDraw
 import os
-# import sys
 import logging
 import RPi.GPIO as GPIO
 from waveshare_epd import epd2in7
 import time
-# os.environ['TZ'] = 'Asia/Tokyo'
-# time.tzset()
-# import requests
-# import urllib, json
-# import matplotlib as mpl
-# mpl.use('Agg')
-# import matplotlib.pyplot as plt
-# import numpy as np
 import yaml 
-# import socket
-# import textwrap
 configfile = os.path.join(os.path.dirname(os.path.realpath(__file__)),'config.yaml')
 photo_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'images')
 photo_list = os.listdir(photo_dir)
@@ -43,16 +32,28 @@ def update_image(epd, config):
     """
     画像の高さが足りない場合の処理を入れる
     """
-    # Resize
-    height = round(photo_image.height * 264 / photo_image.width)
-    photo_image = photo_image.resize((264, height), Image.LANCZOS)
-
-    # Crop
-    if height > 176:
-        upper, lower = (height+176)/2, (height-176)/2
+    # If photo height is larger than the screen
+    if photo_image.width / photo_image.height <= 1.5:
+        # Resize
+        height = round(photo_image.height * 264 / photo_image.width)
+        photo_image = photo_image.resize((264, height), Image.LANCZOS)
+        # Crop
+        if height > 176:
+            upper, lower = (height+176)/2, (height-176)/2
+        else:
+            upper, lower = 176, 0
+        photo_image = photo_image.crop((0, lower, 264, upper))
+    # If photo width is larger than the screen
     else:
-        upper, lower = 176, 0
-    photo_image = photo_image.crop((0, lower, 264, upper))
+        # Resize
+        width = round(photo_image.width * 176 / photo_image.height)
+        photo_image = photo_image.resize((width, 176), Image.LANCZOS)
+        # Crop
+        if width > 264:
+            upper, lower = (width+264)/2, (width-264)/2
+        else:
+            upper, lower = 264, 0
+        photo_image = photo_image.crop((lower, 0, upper, 176))
 
     # Make the photo black/white
     photo_image = photo_image.convert("RGBA")
