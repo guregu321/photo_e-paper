@@ -6,17 +6,17 @@ import logging
 import RPi.GPIO as GPIO
 from waveshare_epd import epd2in7
 import time
-os.environ['TZ'] = 'Asia/Tokyo'
-time.tzset()
-import requests
-import urllib, json
-import matplotlib as mpl
-mpl.use('Agg')
-import matplotlib.pyplot as plt
-import numpy as np
+# os.environ['TZ'] = 'Asia/Tokyo'
+# time.tzset()
+# import requests
+# import urllib, json
+# import matplotlib as mpl
+# mpl.use('Agg')
+# import matplotlib.pyplot as plt
+# import numpy as np
 import yaml 
-import socket
-import textwrap
+# import socket
+# import textwrap
 configfile = os.path.join(os.path.dirname(os.path.realpath(__file__)),'config.yaml')
 photo_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'images')
 photo_list = os.listdir(photo_dir)
@@ -123,6 +123,9 @@ def main():
         GPIO.setup(key4, GPIO.IN, pull_up_down=GPIO.PUD_UP) 
         
         while True:
+            """
+            ボタンの設定
+            """
             # Detect button press
             key1state = GPIO.input(key1)
             key2state = GPIO.input(key2)
