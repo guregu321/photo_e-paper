@@ -129,6 +129,8 @@ def display_info(epd, config):
 def main():    
     initial_screen = False 
     info_status = False
+    global photo_order
+    photo_order = photo_list
 
     # Initialise the display (once before loop)
     epd = epd2in7.EPD()  
@@ -144,8 +146,6 @@ def main():
     with open(configfile) as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
     config['display']['orientation'] = int(config['display']['orientation'])
-    global photo_order
-    photo_order = photo_list
 
     # Set time
     last_time = time.time()
@@ -157,17 +157,17 @@ def main():
                 photo_order = photo_order[-1:] + photo_order[:-1]
                 update_image(epd, config)  
                 info_status = False 
-                last_time=time.time()             
+                last_time = time.time()             
             if GPIO.input(key2) == False:  # Show next photo
                 photo_order = photo_order[1:] + photo_order[:1]
                 update_image(epd, config)
                 info_status = False
-                last_time=time.time()
+                last_time = time.time()
             if GPIO.input(key3) == False:  # Rotate 90 degrees
                 config['display']['orientation'] = (config['display']['orientation']+90) % 360
                 update_image(epd, config)
                 info_status = False
-                last_time=time.time()
+                last_time = time.time()
                 # Overwrite config.yaml
                 with open(configfile, 'w') as f:
                     data = yaml.dump(config, f)
@@ -178,7 +178,7 @@ def main():
                 else:
                     display_info(epd, config)
                     info_status = True
-                last_time=time.time()
+                last_time = time.time()
 
             # Cycle photos    
             if (time.time() - last_time > float(config['ticker']['updatefrequency'])) or (initial_screen == False):
@@ -190,7 +190,7 @@ def main():
                 update_image(epd, config)
                 
                 # Update time keeper
-                last_time=time.time()
+                last_time = time.time()
                 time.sleep(0.2)
 
                 # Update initialization status
