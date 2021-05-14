@@ -17,6 +17,8 @@ def update_image(epd, config):
     photo_path = os.path.join(photo_dir, photo_order[0])
     photo_image = Image.open(photo_path)
 
+    print(photo_path)
+    
     # Fix orientation: PIL changes the orientation of vertical images
     exif = photo_image._getexif()
     convert_image = {
