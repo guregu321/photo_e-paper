@@ -144,6 +144,7 @@ def main():
     with open(configfile) as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
     config['display']['orientation'] = int(config['display']['orientation'])
+    global photo_order
     photo_order = photo_list
 
     # Set time
