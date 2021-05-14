@@ -166,6 +166,9 @@ def main():
                 update_image(epd, config)
                 info_status = False
                 last_time=time.time()
+                # Overwrite config.yaml
+                with open(configfile, 'w') as f:
+                    data = yaml.dump(config, f)
             if GPIO.input(key4) == False: # Display info
                 if info_status == True:
                     update_image(epd, config)
