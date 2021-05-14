@@ -28,8 +28,11 @@ def update_image(epd, config):
         6: lambda img: img.transpose(Image.ROTATE_270),
         7: lambda img: img.transpose(Image.FLIP_LEFT_RIGHT).transpose(Pillow.ROTATE_270),
         8: lambda img: img.transpose(Image.ROTATE_90),}
-    orientation = exif.get(0x112, 1)
-    photo_image = convert_image[orientation](photo_image)
+    try:
+        orientation = exif.get(0x112, 1)
+        photo_image = convert_image[orientation](photo_image)
+    except AttributeError:
+        pass
 
     # Reshape photo
     if config['display']['orientation'] == 0 or config['display']['orientation'] == 180:
