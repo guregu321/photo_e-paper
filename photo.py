@@ -30,8 +30,8 @@ def update_image(epd, config):
     orientation = exif.get(0x112, 1)
     photo_image = convert_image[orientation](photo_image)
 
+    # Reshape photo
     if config['display']['orientation'] == 0 or config['display']['orientation'] == 180:
-        # Reshape photo
         if photo_image.height / photo_image.width >= 1.5: # If photo height is larger than the screen
             # Resize
             height = round(photo_image.height * 176 / photo_image.width)
@@ -52,21 +52,8 @@ def update_image(epd, config):
             else:
                 upper, lower = 176, 0
             photo_image = photo_image.crop((lower, 0, upper, 264))
-
-
     if config['display']['orientation'] == 90 or config['display']['orientation'] == 270:
-        # Reshape photo
-        if photo_image.width / photo_image.height <= 1.5: # If photo height is larger than the screen
-            # Resize
-            height = round(photo_image.height * 264 / photo_image.width)
-            photo_image = photo_image.resize((264, height), Image.LANCZOS)
-            # Crop
-            if height > 176:
-                upper, lower = (height+176)/2, (height-176)/2
-            else:
-                upper, lower = 176, 0
-            photo_image = photo_image.crop((0, lower, 264, upper))
-        else: # If photo width is larger than the screen
+        if photo_image.width / photo_image.height >= 1.5: # If photo width is larger than the screen
             # Resize
             width = round(photo_image.width * 176 / photo_image.height)
             photo_image = photo_image.resize((width, 176), Image.LANCZOS)
@@ -76,6 +63,16 @@ def update_image(epd, config):
             else:
                 upper, lower = 264, 0
             photo_image = photo_image.crop((lower, 0, upper, 176))
+        else: # If photo height is larger than the screen
+            # Resize
+            height = round(photo_image.height * 264 / photo_image.width)
+            photo_image = photo_image.resize((264, height), Image.LANCZOS)
+            # Crop
+            if height > 176:
+                upper, lower = (height+176)/2, (height-176)/2
+            else:
+                upper, lower = 176, 0
+            photo_image = photo_image.crop((0, lower, 264, upper))
 
     # Detect average brightness
     r,g,b = ImageStat.Stat(photo_image).mean
@@ -90,9 +87,6 @@ def update_image(epd, config):
     photo_image = photo_image.convert("RGBA")
 
     # Configure the photo to display
-    """
-    180度にした時の分岐
-    """
     if config['display']['orientation'] == 0 or config['display']['orientation'] == 180:
         # Clear with white
         image = Image.new('L', (epd.width, epd.height), 255)
