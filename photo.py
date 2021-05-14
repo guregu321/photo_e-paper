@@ -10,10 +10,11 @@ configfile = os.path.join(os.path.dirname(os.path.realpath(__file__)),'config.ya
 infofile = os.path.join(os.path.dirname(os.path.realpath(__file__)),'info.jpg')
 photo_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'images')
 photo_list = os.listdir(photo_dir)
+photo_order = []
 
 def update_image(epd, config):
     # Load image
-    photo_path = os.path.join(photo_dir, config['ticker']['image_list'][0])
+    photo_path = os.path.join(photo_dir, photo_order[0])
     photo_image = Image.open(photo_path)
 
     # Fix orientation: PIL changes the orientation of vertical images
@@ -109,7 +110,7 @@ def update_image(epd, config):
         image = ImageOps.invert(image)
 
     # Display the image on the screen
-    print("Displaying {}".format(config['ticker']['image_list'][0]))
+    print("Displaying {}".format(photo_order[0]))
     epd.display_4Gray(epd.getbuffer_4Gray(image))
 
 def display_info(epd, config):
@@ -143,7 +144,7 @@ def main():
     with open(configfile) as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
     config['display']['orientation'] = int(config['display']['orientation'])
-    config['ticker']['image_list'] = photo_list
+    photo_order = photo_list
 
     # Set time
     last_time = time.time()
@@ -152,12 +153,12 @@ def main():
         while True:
             # Detect button press
             if GPIO.input(key1) == False:  # Show previous photo
-                config['ticker']['image_list'] = config['ticker']['image_list'][-1:] + config['ticker']['image_list'][:-1]
+                photo_order = photo_order[-1:] + photo_order[:-1]
                 update_image(epd, config)  
                 info_status = False 
                 last_time=time.time()             
             if GPIO.input(key2) == False:  # Show next photo
-                config['ticker']['image_list'] = config['ticker']['image_list'][1:] + config['ticker']['image_list'][:1]
+                photo_order = photo_order[1:] + photo_order[:1]
                 update_image(epd, config)
                 info_status = False
                 last_time=time.time()
@@ -182,7 +183,7 @@ def main():
             if (time.time() - last_time > float(config['ticker']['updatefrequency'])) or (initial_screen == False):
                 # Make first photo the last in the list
                 if (config['display']['cycle'] == True) and (initial_screen == True):
-                    config['ticker']['image_list'] = config['ticker']['image_list'][1:] + config['ticker']['image_list'][:1]
+                    photo_order = photo_order[1:] + photo_order[:1]
                 
                 # Update image
                 update_image(epd, config)
